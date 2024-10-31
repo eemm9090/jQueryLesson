@@ -15,7 +15,100 @@
   </div>
   <script src="../../common/js/jquery.js"></script>
   <script>
-    // 回答はここに書いてね
+  $(function () {
+
+    $(document).on('click', '#pokemon_search', searchPoke);
+
+    $(document).on('click', '#catch', catchPoke);
+
+    $(document).on('click', '.reset', function() {
+      $('.wrapper').html(homeHtml);
+    });
+
+    const failHtml =
+    `
+      <p class="text">逃げられてしまった...</p>
+      <button class="btn mt reset" data-js="reset">戻る</button>
+    `
+
+    const doneHtml =
+    `
+      <p class="name">ゲットしました</p>
+      <div>
+        <img class="img" src="" alt="">
+      </div>
+      <button class="btn reset" data-js="reset">戻る</button>
+    `
+
+    const encountHtml =
+    `
+      <p class="name"></p>
+      <div>
+        <img class="img" src="" alt="">
+      </div>
+      <div>
+        <button class="btn" id="catch">捕まえる</button>
+        <button class="btn reset" data-js="reset">逃げる</button>
+      </div>
+    `
+
+    const homeHtml =
+    `
+      <button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>
+    `
+
+    function randomNum() {
+      return Math.floor(Math.random() * 151) + 1;
+    };
+
+    function calhalf() {
+      return Math.round(Math.random());
+    };
+
+    function showPoke(url) {
+      const name = url.names[0].name;
+      $('.wrapper').html(encountHtml);
+      $('.name').append(name);
+    };
+
+    function catchPoke () {
+      if (calhalf() > 0) {
+        $.ajax({
+          url: 'https://pokeapi.co/api/v2/item/4',
+          method: 'GET'
+        }).done(function(res) {
+        const image = res.sprites.default;
+        $('.wrapper').html(doneHtml);
+        $('.img').attr('src', image);
+        }).fail(function(err) {
+          console.log(err);
+          });
+      } else {
+        $('.wrapper').html(failHtml);
+      };
+    };
+
+    function searchPoke() {
+      $.ajax({
+        url: 'https://pokeapi.co/api/v2/pokemon/' + randomNum(),
+        method: 'GET'
+      }).done(function(res) {
+        const image = res.sprites.front_default;
+        $.ajax({
+          url: res.species.url,
+          method: 'GET'
+          }).done(function(res) {
+            showPoke(res);
+            $('.img').attr('src', image);
+          }).fail(function(err) {
+            console.log(err);
+        }).fail(function(err) {
+          console.log(err);
+        });
+      });
+    };
+
+  });
   </script>
 </body>
 </html>
