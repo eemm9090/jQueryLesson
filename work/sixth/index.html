@@ -19,26 +19,44 @@
 
     $(document).on('click', '#pokemon_search', searchPoke);
 
-    $(document).on('click', '#catch', catchPoke);
+    function searchPoke() {
+      $.ajax({
+        url: 'https://pokeapi.co/api/v2/pokemon/' + randomNum(),
+        method: 'GET'
+      }).done(function(res) {
+        const pokeImage = res.sprites.front_default;
+        $.ajax({
+          url: res.species.url,
+          method: 'GET'
+          }).done(function(res) {
+            changeHtml('.wrapper', encountHtml);
+            showPokename(res);
+            showImage('.img', pokeImage);
+          }).fail(function(err) {
+            console.log(err);
+        }).fail(function(err) {
+          console.log(err);
+        });
+      });
+    };
 
-    $(document).on('click', '.reset', function() {
-      $('.wrapper').html(homeHtml);
-    });
+    function randomNum() {
+      return Math.floor(Math.random() * 151) + 1;
+    };
 
-    const failHtml =
-    `
-      <p class="text">逃げられてしまった...</p>
-      <button class="btn mt reset" data-js="reset">戻る</button>
-    `
+    function changeHtml(targetSelector, html) {
+      return $(targetSelector).html(html);
+    };
 
-    const doneHtml =
-    `
-      <p class="name">ゲットしました</p>
-      <div>
-        <img class="img" src="" alt="">
-      </div>
-      <button class="btn reset" data-js="reset">戻る</button>
-    `
+    function showPokename(url) {
+      const name = url.names[0].name;
+      $('.name').append(name);
+    };
+
+    function showImage(targetSelector, imageSource) {
+      const image = imageSource;
+      $(targetSelector).attr('src', image);
+    };
 
     const encountHtml =
     `
@@ -52,23 +70,10 @@
       </div>
     `
 
-    const homeHtml =
-    `
-      <button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>
-    `
-
-    function randomNum() {
-      return Math.floor(Math.random() * 151) + 1;
-    };
+    $(document).on('click', '#catch', catchPoke);
 
     function calhalf() {
       return Math.round(Math.random());
-    };
-
-    function showPoke(url) {
-      const name = url.names[0].name;
-      $('.wrapper').html(encountHtml);
-      $('.name').append(name);
     };
 
     function catchPoke () {
@@ -77,9 +82,8 @@
           url: 'https://pokeapi.co/api/v2/item/4',
           method: 'GET'
         }).done(function(res) {
-        const image = res.sprites.default;
-        $('.wrapper').html(doneHtml);
-        $('.img').attr('src', image);
+          changeHtml('.wrapper', doneHtml);
+          showImage('.img', res.sprites.default);
         }).fail(function(err) {
           console.log(err);
           });
@@ -88,25 +92,29 @@
       };
     };
 
-    function searchPoke() {
-      $.ajax({
-        url: 'https://pokeapi.co/api/v2/pokemon/' + randomNum(),
-        method: 'GET'
-      }).done(function(res) {
-        const image = res.sprites.front_default;
-        $.ajax({
-          url: res.species.url,
-          method: 'GET'
-          }).done(function(res) {
-            showPoke(res);
-            $('.img').attr('src', image);
-          }).fail(function(err) {
-            console.log(err);
-        }).fail(function(err) {
-          console.log(err);
-        });
-      });
-    };
+    const doneHtml =
+    `
+      <p class="name">ゲットしました</p>
+      <div>
+        <img class="img" src="" alt="">
+      </div>
+      <button class="btn reset" data-js="reset">戻る</button>
+    `
+
+    const failHtml =
+    `
+      <p class="text">逃げられてしまった...</p>
+      <button class="btn mt reset" data-js="reset">戻る</button>
+    `
+
+    $(document).on('click', '.reset', function() {
+      $('.wrapper').html(homeHtml);
+    });
+
+    const homeHtml =
+    `
+      <button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>
+    `
 
   });
   </script>
